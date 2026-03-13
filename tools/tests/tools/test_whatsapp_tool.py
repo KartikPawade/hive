@@ -15,7 +15,6 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-import pytest
 from fastmcp import FastMCP
 
 from aden_tools.tools.whatsapp_tool.whatsapp_tool import (
@@ -146,7 +145,8 @@ class TestWhatsAppClient:
         mock_response.status_code = 200
         mock_response.json.return_value = {
             "data": [
-                {"name": "hello_world", "status": "APPROVED", "language": "en", "category": "UTILITY"},
+                {"name": "hello_world", "status": "APPROVED",
+                 "language": "en", "category": "UTILITY"},
             ]
         }
         mock_get.return_value = mock_response
@@ -178,7 +178,7 @@ class TestWhatsAppClient:
         mock_response.json.return_value = {"messages": [{"id": "wamid.react1"}]}
         mock_post.return_value = mock_response
 
-        result = self.client.send_reaction("wamid.abc", "\U0001f44d")
+        self.client.send_reaction("wamid.abc", "\U0001f44d")
 
         mock_post.assert_called_once()
         call_kwargs = mock_post.call_args.kwargs
@@ -193,7 +193,7 @@ class TestWhatsAppClient:
         mock_response.json.return_value = {"messages": [{"id": "wamid.img1"}]}
         mock_post.return_value = mock_response
 
-        result = self.client.send_media(
+        self.client.send_media(
             "+14155552671", "image", "https://example.com/photo.jpg", caption="A photo"
         )
 

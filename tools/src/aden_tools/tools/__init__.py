@@ -133,8 +133,8 @@ from .twitter_tool import register_tools as register_twitter
 from .vercel_tool import register_tools as register_vercel
 from .vision_tool import register_tools as register_vision
 from .web_scrape_tool import register_tools as register_web_scrape
-from .whatsapp_tool import register_tools as register_whatsapp
 from .web_search_tool import register_tools as register_web_search
+from .whatsapp_tool import register_tools as register_whatsapp
 from .wikipedia_tool import register_tools as register_wikipedia
 from .yahoo_finance_tool import register_tools as register_yahoo_finance
 from .youtube_tool import register_tools as register_youtube
