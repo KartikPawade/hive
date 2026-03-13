@@ -56,6 +56,7 @@ from .email_tool import register_tools as register_email
 from .exa_search_tool import register_tools as register_exa_search
 from .example_tool import register_tools as register_example
 from .excel_tool import register_tools as register_excel
+from .figma_tool import register_tools as register_figma
 
 # File system toolkits
 from .file_system_toolkits.apply_diff import register_tools as register_apply_diff
@@ -258,6 +259,7 @@ def _register_unverified(
     register_confluence(mcp, credentials=credentials)
     register_databricks(mcp, credentials=credentials)
     register_docker_hub(mcp, credentials=credentials)
+    register_figma(mcp, credentials=credentials)
     register_gitlab(mcp, credentials=credentials)
     register_google_analytics(mcp, credentials=credentials)
     register_google_search_console(mcp, credentials=credentials)

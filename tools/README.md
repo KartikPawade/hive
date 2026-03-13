@@ -146,6 +146,7 @@ python mcp_server.py
 | `run_bigquery_query`, `describe_dataset` | Run queries against Google BigQuery |
 | `razorpay_*` | Razorpay payments and orders |
 | `github_*` | GitHub repos, issues, and pull requests |
+| `figma_*` | Figma file inspection, image export, comments, components, styles, and version history |
 
 ### Security
 
