@@ -73,6 +73,9 @@ class _WhatsAppClient:
             friendly = error_map.get(code, f"WhatsApp API error ({code}): {msg}")
             return {"error": friendly, "error_code": code}
 
+        if response.status_code >= 400:
+            return {"error": f"HTTP error {response.status_code}: {response.text}"}
+
         return data
 
     def send_message(self, to: str, body: str) -> dict[str, Any]:
@@ -123,7 +126,7 @@ class _WhatsAppClient:
     def list_templates(self, waba_id: str, limit: int = 20) -> dict[str, Any]:
         """List message templates for the WhatsApp Business Account."""
         url = f"{GRAPH_API_BASE}/{waba_id}/message_templates"
-        params: dict[str, Any] = {"limit": min(limit, 100)}
+        params: dict[str, Any] = {"limit": min(max(limit, 1), 100)}
         response = httpx.get(
             url,
             headers=self._headers,
@@ -147,9 +150,7 @@ class _WhatsAppClient:
         )
         return self._handle_response(response)
 
-    def send_reaction(
-        self, to: str, message_id: str, emoji: str
-    ) -> dict[str, Any]:
+    def send_reaction(self, to: str, message_id: str, emoji: str) -> dict[str, Any]:
         """React to a message with an emoji."""
         payload = {
             "messaging_product": "whatsapp",
@@ -476,9 +477,7 @@ def register_tools(
         if isinstance(client, dict):
             return client
         try:
-            result = client.send_media(
-                to, "image", image_url, caption=caption or None
-            )
+            result = client.send_media(to, "image", image_url, caption=caption or None)
             if "error" in result:
                 return result
             messages = result.get("messages", [])

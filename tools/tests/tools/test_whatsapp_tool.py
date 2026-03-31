@@ -15,6 +15,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
+import httpx
 from fastmcp import FastMCP
 
 from aden_tools.tools.whatsapp_tool.whatsapp_tool import (
@@ -145,8 +146,12 @@ class TestWhatsAppClient:
         mock_response.status_code = 200
         mock_response.json.return_value = {
             "data": [
-                {"name": "hello_world", "status": "APPROVED",
-                 "language": "en", "category": "UTILITY"},
+                {
+                    "name": "hello_world",
+                    "status": "APPROVED",
+                    "language": "en",
+                    "category": "UTILITY",
+                },
             ]
         }
         mock_get.return_value = mock_response
@@ -265,10 +270,13 @@ class TestRegisterTools:
         register_tools(self.mcp, credentials=None)
         tools = {t.name: t for t in self.mcp._tool_manager._tools.values()}
 
-        with patch("os.getenv", side_effect=lambda k: {
-            "WHATSAPP_ACCESS_TOKEN": "test-token",
-            "WHATSAPP_PHONE_NUMBER_ID": "12345",
-        }.get(k)):
+        with patch(
+            "os.getenv",
+            side_effect=lambda k: {
+                "WHATSAPP_ACCESS_TOKEN": "test-token",
+                "WHATSAPP_PHONE_NUMBER_ID": "12345",
+            }.get(k),
+        ):
             result = tools["whatsapp_send_message"].fn(to="+14155552671", body="Hello!")
 
         assert result["success"] is True
@@ -313,10 +321,13 @@ class TestRegisterTools:
         register_tools(self.mcp, credentials=None)
         tools = {t.name: t for t in self.mcp._tool_manager._tools.values()}
 
-        with patch("os.getenv", side_effect=lambda k: {
-            "WHATSAPP_ACCESS_TOKEN": "tok",
-            "WHATSAPP_PHONE_NUMBER_ID": "123",
-        }.get(k)):
+        with patch(
+            "os.getenv",
+            side_effect=lambda k: {
+                "WHATSAPP_ACCESS_TOKEN": "tok",
+                "WHATSAPP_PHONE_NUMBER_ID": "123",
+            }.get(k),
+        ):
             result = tools["whatsapp_send_template"].fn(
                 to="+14155552671",
                 template_name="hello",
@@ -344,9 +355,7 @@ class TestRegisterTools:
         register_tools(self.mcp, credentials=None)
         tools = {t.name: t for t in self.mcp._tool_manager._tools.values()}
 
-        result = tools["whatsapp_send_reaction"].fn(
-            to="", message_id="", emoji=""
-        )
+        result = tools["whatsapp_send_reaction"].fn(to="", message_id="", emoji="")
         assert "error" in result
 
     def test_send_image_missing_params(self):
@@ -375,15 +384,16 @@ class TestErrorHandling:
         return {t.name: t for t in self.mcp._tool_manager._tools.values()}
 
     def _env_patch(self):
-        return patch("os.getenv", side_effect=lambda k: {
-            "WHATSAPP_ACCESS_TOKEN": "tok",
-            "WHATSAPP_PHONE_NUMBER_ID": "123",
-        }.get(k))
+        return patch(
+            "os.getenv",
+            side_effect=lambda k: {
+                "WHATSAPP_ACCESS_TOKEN": "tok",
+                "WHATSAPP_PHONE_NUMBER_ID": "123",
+            }.get(k),
+        )
 
     @patch("aden_tools.tools.whatsapp_tool.whatsapp_tool.httpx.post")
     def test_send_message_timeout(self, mock_post):
-        import httpx
-
         mock_post.side_effect = httpx.TimeoutException("Request timed out")
 
         register_tools(self.mcp, credentials=None)
@@ -397,8 +407,6 @@ class TestErrorHandling:
 
     @patch("aden_tools.tools.whatsapp_tool.whatsapp_tool.httpx.post")
     def test_send_message_network_error(self, mock_post):
-        import httpx
-
         mock_post.side_effect = httpx.ConnectError("Connection failed")
 
         register_tools(self.mcp, credentials=None)
@@ -412,25 +420,19 @@ class TestErrorHandling:
 
     @patch("aden_tools.tools.whatsapp_tool.whatsapp_tool.httpx.post")
     def test_send_template_timeout(self, mock_post):
-        import httpx
-
         mock_post.side_effect = httpx.TimeoutException("Request timed out")
 
         register_tools(self.mcp, credentials=None)
         tools = self._get_tools()
 
         with self._env_patch():
-            result = tools["whatsapp_send_template"].fn(
-                to="+1234", template_name="hello"
-            )
+            result = tools["whatsapp_send_template"].fn(to="+1234", template_name="hello")
 
         assert "error" in result
         assert "timed out" in result["error"].lower()
 
     @patch("aden_tools.tools.whatsapp_tool.whatsapp_tool.httpx.get")
     def test_list_templates_timeout(self, mock_get):
-        import httpx
-
         mock_get.side_effect = httpx.TimeoutException("Request timed out")
 
         register_tools(self.mcp, credentials=None)
@@ -444,8 +446,6 @@ class TestErrorHandling:
 
     @patch("aden_tools.tools.whatsapp_tool.whatsapp_tool.httpx.post")
     def test_mark_as_read_network_error(self, mock_post):
-        import httpx
-
         mock_post.side_effect = httpx.ConnectError("Connection failed")
 
         register_tools(self.mcp, credentials=None)
@@ -458,8 +458,6 @@ class TestErrorHandling:
 
     @patch("aden_tools.tools.whatsapp_tool.whatsapp_tool.httpx.post")
     def test_send_reaction_timeout(self, mock_post):
-        import httpx
-
         mock_post.side_effect = httpx.TimeoutException("Request timed out")
 
         register_tools(self.mcp, credentials=None)
@@ -477,8 +475,6 @@ class TestErrorHandling:
 
     @patch("aden_tools.tools.whatsapp_tool.whatsapp_tool.httpx.post")
     def test_send_image_timeout(self, mock_post):
-        import httpx
-
         mock_post.side_effect = httpx.TimeoutException("Request timed out")
 
         register_tools(self.mcp, credentials=None)
@@ -494,8 +490,6 @@ class TestErrorHandling:
 
     @patch("aden_tools.tools.whatsapp_tool.whatsapp_tool.httpx.post")
     def test_send_document_network_error(self, mock_post):
-        import httpx
-
         mock_post.side_effect = httpx.ConnectError("Connection failed")
 
         register_tools(self.mcp, credentials=None)
@@ -525,7 +519,10 @@ class TestErrorHandling:
                 "emoji": "\U0001f44d",
             },
             "whatsapp_send_image": {"to": "+1234", "image_url": "https://example.com/img.jpg"},
-            "whatsapp_send_document": {"to": "+1234", "document_url": "https://example.com/doc.pdf"},
+            "whatsapp_send_document": {
+                "to": "+1234",
+                "document_url": "https://example.com/doc.pdf",
+            },
         }
 
         with patch("os.getenv", return_value=None):
